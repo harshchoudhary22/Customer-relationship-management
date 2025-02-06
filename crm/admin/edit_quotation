@@ -1,0 +1,184 @@
+<?php
+session_start();
+include("../config.php");
+
+// Check if the user is logged in and is an admin
+if (!isset($_SESSION['user_id']) || !$_SESSION['is_admin']) {
+    header('Location: login.php');
+    exit();
+}
+
+// Fetch the quotation details
+if (isset($_GET['id'])) {
+    $quotation_id = $_GET['id'];
+    $query = "SELECT * FROM quotations WHERE id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $quotation_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $quotation = $result->fetch_assoc();
+} else {
+    header('Location: manage_quotations.php');
+    exit();
+}
+
+// Update the quotation
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $subject = $_POST['subject'];
+    $description = $_POST['description'];
+    $status = $_POST['status'];
+
+    $query = "UPDATE quotations SET subject = ?, description = ?, status = ? WHERE id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("sssi", $subject, $description, $status, $quotation_id);
+
+    if ($stmt->execute()) {
+        header('Location: manage_quotations.php');
+        exit();
+    } else {
+        $error = "Failed to update quotation.";
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Quotation</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #2c3e50;
+            color: white;
+        }
+        .navbar-custom {
+            background-color: #2c3e50;
+        }
+        .navbar-custom .navbar-brand, .navbar-custom .nav-link {
+            color: white;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #18bc9c;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .form-control {
+            background-color: #3c4f63;
+            color: white;
+        }
+        .form-control:focus {
+            background-color: #3c4f63;
+            color: white;
+        }
+        .btn-custom {
+            background-color: #18bc9c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            transition: background-color 0.3s;
+        }
+        .btn-custom:hover {
+            background-color: #148f77;
+        }
+        .footer {
+            background-color: #2c3e50;
+            padding: 10px 0;
+            text-align: center;
+            color: white;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="#">CRM</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.php">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="manage_tickets.php">Manage Tickets</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="manage_quotations.php">Manage Quotations</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="manage_users.php">Manage Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="view_logs.php">View Logs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="live_chat.php">Live Chat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="analytics_dashboard.php">Analytics Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="role_based_controls.php">Role-Based Controls</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Automated_Email_Reports.php">Automated Email Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="change_password.php">Change Password</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.php">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h2>Edit Quotation</h2>
+        <?php if (isset($error)) { ?>
+            <div class="alert alert-danger"><?php echo $error; ?></div>
+        <?php } ?>
+        <form method="post" action="">
+            <div class="form-group">
+                <label for="subject">Subject</label>
+                <input type="text" name="subject" class="form-control" value="<?php echo $quotation['subject']; ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea name="description" class="form-control" required><?php echo $quotation['description']; ?></textarea>
+            </div>
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select name="status" class="form-control" required>
+                    <option value="pending" <?php if ($quotation['status'] == 'pending') echo 'selected'; ?>>Pending</option>
+                    <option value="approved" <?php if ($quotation['status'] == 'approved') echo 'selected'; ?>>Approved</option>
+                    <option value="rejected" <?php if ($quotation['status'] == 'rejected') echo 'selected'; ?>>Rejected</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-custom">Update Quotation</button>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="text-center text-white">&copy; 2024 Cloud based CRM - PHP. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+body {
+    background: url('../assets/images/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Arial', sans-serif;
+    color: #fff; /* Makes text color white for better contrast */
+}
+
+.header-title {
+    color: #fff;
+    text-shadow: 2px 2px 4px #000;
+}
+
+.card {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: none;
+}
+
+.card-title, .card-text {
+    color: #333;
+}
+
+.navbar {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.sidebar-heading, .list-group-item {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+}
+
+.list-group-item-action:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.list-group-item-action.active {
+    background-color: rgba(255, 255, 255, 0.4);
+    color: #000;
+}

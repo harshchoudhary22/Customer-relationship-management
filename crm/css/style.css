@@ -1,0 +1,15 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.container {
+    margin-top: 20px;
+}
+
+.card-header {
+    font-size: 1.25rem;
+}
+
+.btn-primary {
+    margin-top: 10px;
+}
